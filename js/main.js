@@ -10,13 +10,13 @@ var TonsillWidget = {
 
 	},
 	onTEorTTChange: function() {
-
+		TonsillWidget.loadUnitData();
 	},
 	loadUnitData: function(unit) {
 		TonsillWidget._loadData({
-			unit: unit,
-			TT: true,
-			TE: true
+			unit: unit || TonsillWidget._unitCombo.getValue(),
+			TT: Ext.getCmp('cb-tt').getValue(),
+			TE: Ext.getCmp('cb-te').getValue()
 		}, function(success, data) {
 			if (success) {
 				TonsillWidget.config.mainStore.loadData(data);
@@ -41,7 +41,7 @@ var TonsillWidget = {
 					retData[i.key]['year'] = i.key;
 					retData[i.key]['cTotal' + (unit == 0 ? 'R' : '')] = i.value[0].value;
 					retData[i.key]['cBleed' + (unit == 0 ? 'R' : '')] = (conf.TT ? i.value[1].value : 0) + (conf.TE ? i.value[2].value : 0);
-					retData[i.key]['sBleed' + (unit == 0 ? 'R' : '')] = i.value[3].value * 100;
+					retData[i.key]['sBleed' + (unit == 0 ? 'R' : '')] = !conf.TT && !conf.TE ? 0 : i.value[TonsillWidget.getTTorTEValue(conf)].value * 100;
 				});
 				if (unit !== 0) {
 					conf.unit = 0;
@@ -55,8 +55,20 @@ var TonsillWidget = {
 			}
 		});
 	},
+	// 0: "cTotal"
+	// 1: "cBldTE"
+	// 2: "cBldTT"
+	// 3: "sBleed"
+	// 4: "sBldTT"
+	// 5: "sBldTE"
+	// 6: "ciBleed"
+	// 7: "ciBldTT"
+	// 8: "ciBldTE"
+	getTTorTEValue: function(conf) {
+		return conf.TT ? (conf.TE ? 3 : 4) : 5;
+	},
 	_initComponents: function() {
-		var chart, indicatorCombo, unitCombo, mainStore, ct, combosCt;
+		var chart, indicatorCombo, unitCombo, mainStore, ct, combosCt, legend;
 		var conf = TonsillWidget.config;
 		ct = Ext.create('Ext.container.Container', {
 			// xtype: 'container',
@@ -72,12 +84,153 @@ var TonsillWidget = {
 			},
 			margin: '0 0 39px 0'
 		});
+		legend = Ext.create('Ext.chart.Legend', {
+			tpl: ['<div class="ton-legend-container">', '<tpl for=".">', '<div class="ton-legend-item">', '<span class="ton-legend-item-marker" ', 'style="background:{mark};">', '</span>{name}', '</div>', '</tpl>', '</div>'],
+			// position: 'top',
+			flex: 1,
+			// renderTo: Ext.getBody()
+		});
+
+		unitCombo = TonsillWidget._unitCombo = Ext.create({
+			xtype: 'combo',
+			// componentCls: 'ton-combo-standard',
+			// cls: 'ton-combo-cls',
+			// triggerWrapCls: 'ton-combo-trigger',
+			width: 270,
+			store: {
+				fields: ['UnitCode', 'UnitName'],
+				autoLoad: true,
+				proxy: {
+					type: 'ajax',
+					url: 'https://stratum.registercentrum.se/api/metadata/units/register/129/?apikey=' + TonsillWidget.config.apiKey,
+					reader: {
+						type: 'json',
+						rootProperty: 'data'
+					}
+				},
+				sorters: ['UnitName']
+			},
+			listeners: {
+				select: function(cb, records) {
+					var me = this,
+						unitId;
+					if (!records) {
+						return;
+					}
+					unitId = Ext.isArray(records) ? records[0].get('UnitCode') : records.get('UnitCode');
+					if (unitId) {
+						TonsillWidget.loadUnitData(unitId);
+						try{
+							chart.getSeries()[0].setTitle(['Riket', cb.getRawValue()]);
+							chart.refreshLegendStore();
+						} catch(e){
+
+						}
+					}
+				},
+				focus: function(cb) {
+					// cb.clearValue();
+					cb.selectText();
+					cb.expand();
+				}
+			},
+			value: conf.unit,
+			displayField: 'UnitName',
+			valueField: 'UnitCode',
+			// editable: true,
+			typeAhead: true,
+			anyMatch: true,
+			forceSelection: true,
+			queryMode: 'local',
+			sendEmptyText: false
+		});
+		indicatorCombo = Ext.create({
+			xtype: 'combo',
+			flex: 1,
+			store: {
+				fields: ['value', 'display'],
+				data: [{
+					value: 'bleed',
+					display: 'Återinlagd på sjukhus p.g.a blödning'
+				}]
+			},
+			valueField: 'value',
+			displayField: 'display',
+			value: 'bleed'
+		});
+		mainStore = conf.mainStore = window.mainStore = Ext.create('Ext.data.Store', {
+			fields: ['year', 'cBleed', 'sBleed', 'cBleedR', 'sBleedR']
+		});
+		chart = Ext.create({
+			xtype: 'cartesian',
+			// renderTo: 'widget',
+			width: 600,
+			height: 400,
+			store: mainStore,
+			stacked: false,
+			colors: ['#359aa3', '#f87c16'],
+			axes: [{
+				type: 'numeric',
+				position: 'left',
+				fields: ['sBleedR', 'sBleed'],
+				maximum: 25,
+				minimum: 0,
+				majorTickSteps: 5,
+				renderer: function(v) {
+					return Ext.util.Format.number(v, '0%');
+				},
+				style: {
+					strokeStyle: 'none'
+				},
+				grid: {
+					stroke: '#d8d8d8'
+				}
+			}, {
+				type: 'category',
+				position: 'bottom',
+				style: {
+					strokeStyle: '#d8d8d8',
+					lineWidth: 0
+				},
+				fields: ['year']
+			}],
+			legend: legend,
+			series: [{
+					type: 'bar',
+					xField: 'year',
+					yField: ['sBleedR', 'sBleed'],
+					title: ['Riket'],
+					stacked: false,
+					useDarkerStrokeColor: false,
+					// showInLegend: true,
+					style: {
+						// fillOpacity: 0.7
+					},
+					renderer: function(sprite, config, rendererData, index) {
+						var isLast = index === rendererData.store.count() - 1;
+						return {
+							fillOpacity: isLast ? 0.5 : 1,
+							strokeOpacity: isLast ? 0 : 1,
+						}
+					}
+				}
+				/*, {
+								type: 'bar',
+								xField: 'year',
+								yField: ['sBleed', 'sBleedR'],
+								stacked: false,
+								style: {
+									fillOpacity: 0.7
+								}
+							}*/
+			]
+		});
 		filterCt = Ext.create('Ext.container.Container', {
-			layout: 'fit',
+			layout: 'hbox',
 			// layout: {type: 'hbox', align: 'stretch', pack: 'end'},
 			margin: '0 0 19px 0',
-
-			items: [{
+			id: 'filterCt',
+			items: [legend, {
 				xtype: 'fieldcontainer',
 				layout: {
 					type: 'hbox',
@@ -115,154 +268,6 @@ var TonsillWidget = {
 					id: 'cb-ci'
 				}]
 			}]
-		});
-		unitCombo = Ext.create({
-			xtype: 'combo',
-			// componentCls: 'ton-combo-standard',
-			// cls: 'ton-combo-cls',
-			// triggerWrapCls: 'ton-combo-trigger',
-			width: 270,
-			store: {
-				fields: ['UnitCode', 'UnitName'],
-				autoLoad: true,
-				proxy: {
-					type: 'ajax',
-					url: 'https://stratum.registercentrum.se/api/metadata/units/register/129/?apikey=' + TonsillWidget.config.apiKey,
-					reader: {
-						type: 'json',
-						rootProperty: 'data'
-					}
-				},
-				sorters: ['UnitName']
-			},
-			listeners: {
-				select: function(cb, records) {
-					var me = this,
-						unitId;
-					if (!records) {
-						return;
-					}
-					unitId = Ext.isArray(records) ? records[0].get('UnitCode') : records.get('UnitCode');
-					if (unitId) {
-						TonsillWidget.loadUnitData(unitId);
-					}
-				},
-				focus: function(cb) {
-					// cb.clearValue();
-					cb.selectText();
-					cb.expand();
-				}
-			},
-			value: conf.unit,
-			displayField: 'UnitName',
-			valueField: 'UnitCode',
-			// editable: true,
-			typeAhead: true,
-			anyMatch: true,
-			forceSelection: true,
-			queryMode: 'local',
-			sendEmptyText: false
-		});
-		indicatorCombo = Ext.create({
-			xtype: 'combo',
-			flex: 1,
-			store: {
-				fields: ['value', 'display'],
-				data: [{
-					value: 'bleed',
-					display: 'Återinlagd på sjukhus p.g.a blödning'
-				}]
-			},
-			valueField: 'value',
-			displayField: 'display',
-			value: 'bleed'
-		});
-		mainStore = conf.mainStore = window.mainStore = Ext.create('Ext.data.Store', {
-			fields: ['year', 'cBleed', 'sBleed', 'cBleedR', 'sBleedR']
-				// autoLoad: true,
-				// proxy: {
-				// type: 'ajax',
-				// url: 'https://stratum.registercentrum.se/api/statistics/ton/aggregates?unit=10001&apikey=' + TonsillWidget.config.apiKey,
-				// reader: {
-				// type: 'objecttoarray',
-				// rootProperty: function(anObject) {
-				// return objectToArray(anObject.data[Object.keys(anObject.data)[0]]);
-				// }
-				// }
-				// },
-				// fields: [{
-				// name: 'key',
-				// type: 'string',
-				// mapping: 'key'
-				// }, {
-				// name: 'value',
-				// type: 'float',
-				// mapping: 'value[3].value'
-				// }]
-				// listeners: {
-				// 	load: function(aStore, aList) {
-				// 		linearChart.animate({
-				// 			duration: 500,
-				// 			to: {
-				// 				opacity: 1
-				// 			}
-				// 		});
-				// 	}
-				// }
-		});
-		chart = Ext.create({
-			xtype: 'cartesian',
-			// renderTo: 'widget',
-			width: 600,
-			height: 400,
-			store: mainStore,
-			stacked: false,
-			colors: ['#359aa3', '#f87c16'],
-			axes: [{
-				type: 'numeric',
-				position: 'left',
-				fields: ['sBleedR', 'sBleed'],
-				maximum: 25,
-				minimum: 0,
-				majorTickSteps: 5,
-				renderer: function(v) {
-					return Ext.util.Format.number(v, '0%');
-				},
-				grid: {
-					stroke: '#d8d8d8'
-				}
-			}, {
-				type: 'category',
-				position: 'bottom',
-				fields: ['year']
-			}],
-			series: [{
-					type: 'bar',
-					xField: 'year',
-					yField: ['sBleedR', 'sBleed'],
-					stacked: false,
-					useDarkerStrokeColor: false,
-					style: {
-						// fillOpacity: 0.7
-					},
-					renderer: function(sprite, config, rendererData, index) {
-						var isLast = index === rendererData.store.count() - 1;
-						return {
-							fillOpacity: isLast ? 0.5 : 1,
-							strokeOpacity: isLast ? 0 : 1,
-						}
-					}
-				}
-				/*, {
-								type: 'bar',
-								xField: 'year',
-								yField: ['sBleed', 'sBleedR'],
-								stacked: false,
-								style: {
-									fillOpacity: 0.7
-								}
-							}*/
-			]
 		});
 		combosCt.add([unitCombo, indicatorCombo]);
 		ct.add([combosCt, filterCt, chart])
