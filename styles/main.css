@@ -1,3 +1,31 @@
 .x-body{
 	background-color: #EBEBEB;
 }
+#main-container{
+	margin: 0 auto;
+	background: #fff;
+	width: 995px;
+	padding: 40px 88px;
+	box-sizing: border-box;
+}
+.ton-combo-standard, .ton-combo-cls{
+	background: salmon;
+},
+.ton-combo-trigger{
+	/*border-size: 3px;,*/
+}
+.x-form-text-default {
+	padding: 9px 20px;
+}
+.x-form-trigger-wrap{
+	border-radius: 3px;
+	border-color: rgba(0, 0, 0, 0.3);
+	box-shadow: inset 0px 0px 5px 0px rgba(0,0,0,0.25);
+}
+.x-form-trigger-wrap * {
+	background-color: transparent;
+}
+.x-form-text{
+	font-size: 16px;
+	color: #58585a;
+}
