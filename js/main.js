@@ -9,34 +9,43 @@ var TonsillWidget = {
 	onUnitChange: function() {
 
 	},
+	onTEorTTChange: function() {
+
+	},
 	loadUnitData: function(unit) {
-		TonsillWidget._loadData(unit, function(success, data) {
+		TonsillWidget._loadData({
+			unit: unit,
+			TT: true,
+			TE: true
+		}, function(success, data) {
 			if (success) {
 				TonsillWidget.config.mainStore.loadData(data);
 			}
 		});
 	},
-	_loadData: function(unit, cb, data) {
+	_loadData: function(conf, cb, data) {
 		Ext.Ajax.request({
 			type: 'ajax',
 			method: 'get',
 			url: 'https://stratum.registercentrum.se/api/statistics/ton/aggregates',
 			params: {
 				apiKey: TonsillWidget.config.apiKey,
-				unit: unit
+				unit: conf.unit
 			},
 			success: function(resp, opts) {
 				var _data = Ext.decode(resp.responseText);
 				var retData = data || {};
+				var unit = conf.unit;
 				Ext.Array.each(objectToArray(_data.data)[0].value, function(i) {
 					retData[i.key] = retData[i.key] || {};
 					retData[i.key]['year'] = i.key;
 					retData[i.key]['cTotal' + (unit == 0 ? 'R' : '')] = i.value[0].value;
-					retData[i.key]['cBleed' + (unit == 0 ? 'R' : '')] = i.value[1].value + i.value[2].value;
+					retData[i.key]['cBleed' + (unit == 0 ? 'R' : '')] = (conf.TT ? i.value[1].value : 0) + (conf.TE ? i.value[2].value : 0);
 					retData[i.key]['sBleed' + (unit == 0 ? 'R' : '')] = i.value[3].value * 100;
 				});
 				if (unit !== 0) {
-					TonsillWidget._loadData(0, cb, retData);
+					conf.unit = 0;
+					TonsillWidget._loadData(conf, cb, retData);
 				} else {
 					cb(true, Ext.Object.getValues(retData));
 				}
@@ -62,6 +71,50 @@ var TonsillWidget = {
 				// componentCls: 'standard-combo'
 			},
 			margin: '0 0 39px 0'
+		});
+		filterCt = Ext.create('Ext.container.Container', {
+			layout: 'fit',
+			// layout: {type: 'hbox', align: 'stretch', pack: 'end'},
+			margin: '0 0 19px 0',
+
+			items: [{
+				xtype: 'fieldcontainer',
+				layout: {
+					type: 'hbox',
+					align: 'stretch',
+					pack: 'end'
+				},
+				// fieldLabel: 'Toppings',
+				// pack: 'end',
+				defaultType: 'checkboxfield',
+				defaults: {
+					margin: '0 0 0 4px'
+				},
+				items: [{
+					boxLabel: 'TT',
+					name: 'tt',
+					inputValue: '1',
+					checked: true,
+					listeners: {
+						change: TonsillWidget.onTEorTTChange
+					},
+					id: 'cb-tt'
+				}, {
+					boxLabel: 'TE',
+					name: 'topping',
+					inputValue: '2',
+					checked: true,
+					listeners: {
+						change: TonsillWidget.onTEorTTChange
+					},
+					id: 'cb-te'
+				}, {
+					boxLabel: 'Konfidensintervall 95%',
+					name: 'ci',
+					inputValue: '3',
+					id: 'cb-ci'
+				}]
+			}]
 		});
 		unitCombo = Ext.create({
 			xtype: 'combo',
@@ -200,10 +253,10 @@ var TonsillWidget = {
 						}
 					}
 				}
-				/*,{
+				/*, {
 								type: 'bar',
 								xField: 'year',
-								yField: ['cBleed','cBleedR'],
+								yField: ['sBleed', 'sBleedR'],
 								stacked: false,
 								style: {
 									fillOpacity: 0.7
@@ -212,7 +265,7 @@ var TonsillWidget = {
 			]
 		});
 		combosCt.add([unitCombo, indicatorCombo]);
-		ct.add([combosCt, chart])
+		ct.add([combosCt, filterCt, chart])
 	},
 
 }
