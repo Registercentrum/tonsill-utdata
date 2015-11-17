@@ -177,6 +177,7 @@ var TonsillWidget = {
 			store: mainStore,
 			stacked: false,
 			colors: ['#359aa3', '#f87c16'],
+			innerPadding: {top: 0, left: 16, right: 16, bottom: 0},
 			axes: [{
 				type: 'numeric',
 				position: 'left',
@@ -184,10 +185,15 @@ var TonsillWidget = {
 				maximum: 25,
 				minimum: 0,
 				majorTickSteps: 5,
+				label: {
+					fontSize: 10,
+					color: '#333'
+				},
 				renderer: function(v) {
 					return Ext.util.Format.number(v, '0%');
 				},
 				style: {
+					font: '10px',
 					strokeStyle: 'none'
 				},
 				grid: {
@@ -196,8 +202,13 @@ var TonsillWidget = {
 			}, {
 				type: 'category',
 				position: 'bottom',
+				label: {
+					fontSize: 10,
+					color: '#333'
+				},
 				style: {
 					strokeStyle: '#d8d8d8',
+					majorTickSize: 0,
 					lineWidth: 0
 				},
 				fields: ['year']
