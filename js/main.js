@@ -21,6 +21,8 @@ var TonsillWidget = {
 		}, function(success, data) {
 			if (success) {
 				TonsillWidget.config.mainStore.loadData(data);
+			} else {
+				Ext.Msg.alert('Fel', 'Något blev fel när data skulle laddas från statistik-servern, var god försök igen');
 			}
 			TonsillWidget.toggleLoading(false);
 		});
@@ -163,7 +165,22 @@ var TonsillWidget = {
 			value: 'bleed'
 		});
 		mainStore = conf.mainStore = window.mainStore = Ext.create('Ext.data.Store', {
-			fields: ['year', 'cBleed', 'sBleed', 'cBleedR', 'sBleedR', 'method']
+			fields: ['year', 'cBleed', {
+				name: 'sBleed',
+				defaultValue: 0
+			}, 'cBleedR', 'sBleedR', 'method', 'ciBleed', 'ciBleedR'],
+			listeners: {
+				refresh: function() {
+					var cb;
+					try {
+						cb = TonsillWidget._unitCombo;
+						chart.getSeries()[0].setTitle(['Riket', cb.getRawValue()]);
+						chart.refreshLegendStore();
+					} catch (e) {
+
+					}
+				}
+			}
 		});
 		chart = TonsillWidget._chart = Ext.create({
 			xtype: 'cartesian',
@@ -232,9 +249,9 @@ var TonsillWidget = {
 						style: {},
 						renderer: Ext.util.Format.numberRenderer('0.0%')
 					},
-					tooltip:{
+					tooltip: {
 						anchor: 'top',
-						renderer: function(storeItem, item){
+						renderer: function(storeItem, item) {
 							var isRiket = (/^sBleedR$/).test(item.field);
 							this.setHtml(Ext.String.format(
 								'Andel: {0}<br>Totalt: {1} operationer<br>Operationsteknik: {2}<br>Täckningsgrad: {3}',
