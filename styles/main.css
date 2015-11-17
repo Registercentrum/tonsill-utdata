@@ -144,3 +144,24 @@ footer{
     color: #333;
     padding: 15px 20px;
 }
+.x-legend-container{
+    border: 0;
+    margin-left: 10px;
+}
+.x-legend-item{
+    font-size: 13px;
+    font-family: 'open_sans';
+    cursor: pointer;
+    padding: 0px 8px 0px 14px;
+}
+.x-view-item-focused {
+    outline: 0 !important;
+}
+.x-legend-item-marker{
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    box-shadow: none;
+    left: 0px;
+    top: 1px;
+}

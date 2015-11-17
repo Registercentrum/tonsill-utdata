@@ -95,7 +95,7 @@ var TonsillWidget = {
 			margin: '0 0 39px 0'
 		});
 		legend = Ext.create('Ext.chart.Legend', {
-			tpl: ['<div class="ton-legend-container">', '<tpl for=".">', '<div class="ton-legend-item">', '<span class="ton-legend-item-marker" ', 'style="background:{mark};">', '</span>{name}', '</div>', '</tpl>', '</div>'],
+			// tpl: ['<div class="ton-legend-container">', '<tpl for=".">', '<div class="ton-legend-item">', '<span class="ton-legend-item-marker" ', 'style="background:{mark};">', '</span>{name}', '</div>', '</tpl>', '</div>'],
 			// position: 'top',
 			flex: 1,
 			// renderTo: Ext.getBody()
@@ -130,12 +130,6 @@ var TonsillWidget = {
 					unitId = Ext.isArray(records) ? records[0].get('UnitCode') : records.get('UnitCode');
 					if (unitId) {
 						TonsillWidget.loadUnitData(unitId);
-						try {
-							chart.getSeries()[0].setTitle(['Riket', cb.getRawValue()]);
-							chart.refreshLegendStore();
-						} catch (e) {
-
-						}
 					}
 				},
 				focus: function(cb) {
@@ -225,7 +219,7 @@ var TonsillWidget = {
 					type: 'bar',
 					xField: 'year',
 					yField: ['sBleedR', 'sBleed'],
-					title: ['Riket'],
+					title: ['Riket', 'Ej vald'],
 					stacked: false,
 					useDarkerStrokeColor: false,
 					label: {
