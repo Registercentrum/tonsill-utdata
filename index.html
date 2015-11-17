@@ -13,18 +13,69 @@
 	<!-- <link rel="stylesheet" type="text/css" href="Default2.css">	 -->
 </head>
 <body>
-	<header></header>
-	<div id="main-container">
+	<header>
+		<div id="top-logo">
+			<div class="container logo">
+				<img id="logo-image" src="images/orl-logo.png" alt="">
+				<span id="logo-text">Tonsilloperationsregistret</span>
+			</div>
+		</div>
+		<div id="top-menu" class="container">
+			<ul class="menu">
+				<li>Start</li>
+				<li>Registrera och hämta data</li>
+				<li class="active">Statistik</li>
+				<li>Information till patienter</li>
+			</ul>
+		</div>
+		<div id="breadcrumb-ct" class="container">
+			Start ORL-registret > Start Tonsilloperationsregistret > Statistik > Återinläggning…
+		</div>
+	</header>
+	<div id="main-container" class="container">
 		<div id="widget"></div>
-	</div>
-	<footer></footer>
-	<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/ext-all.js"></script>
-	<script type="text/javascript" src="https://stratum.registercentrum.se/ExtJS/packages/ext-theme-stratum/build/ext-theme-stratum-debug.js?v=3639"></script>
-	<!-- <script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/ext-theme-crisp/build/ext-theme-crisp-debug.js"></script> -->
-	<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/sencha-charts/build/sencha-charts.js"></script>
-	<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/ext-locale/build/ext-locale-sv_SE.js"></script>
-	<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/ext-locale/build/ext-locale-sv_SE.js"></script>
-	<script type="text/javascript" src="https://stratum.registercentrum.se/Scripts/Repository.js?v=3639"></script>
-	<script type="text/javascript" src="js/main.js"></script>
+		<div class="half-container left">
+			<h2>Om Indikatorn</h2>
+			<p>
+				Vestibulum id ligula porta felis euismod semper. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum. Nullam quis risus eget urna mollis ornare vel eu leo.
+			</p><p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Cras mattis consectetur purus sit amet fermentum. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+		</p><p>
+		Etiam porta sem malesuada magna mollis euismod. Aenean lacinia bibendum nulla sed consectetur. Sed posuere consectetur est at lobortis. Maecenas sed diam eget risus varius blandit sit amet non magna. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.
+	</p><p>
+	Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur.
+</p>
+</div>
+<div class="half-container">
+	<h2>Tolkning</h2>
+	<h3>Matchning av två nationella register</h3>
+	<p>
+		Metoden att hämta uppgifter från två nationella register ger möjlighet till en mer korrekt sammanställning av hur många operationer som har utförts och hur många som har återinlagts för blödning.
+	</p>
+	<p>
+		Tonsillregistret kan inte användas ensamt eftersom svarsfrekvensen för 2014 var för låg för att data ska kunna vara tillförlitliga. Patientregistret (PAR) anses vara ett komplett register, men täckningsgradsanalysen mot tonsillregistret visar att 3 % av tonsilloperationerna som utfördes 2014 inte fanns med i PAR. Därmed kräver en så komplett sammanställning som möjligt att resultat från både PAR och tonsillregistret matchas.
+	</p>
+	<h3>Konfidensintervall</h3>
+	<p>
+		Blödningsresultat från visas med konfidensintervall, gränserna visar ett intervall som med 95 % sannolikhet innehåller den riktiga procentandelen.
+	</p>
+	<p>
+		Konfidensintervallet är beroende av antalet operationer, vilket är skälet till att kliniker med många operationer har snävare intervall. Konfidensintervallet visar om det finns en signifikant skillnad mellan två kliniker. Om konfidensintervallen för två kliniker inte överlappar varandra finns det en skillnad.
+	</p>
+</div>
+</div>
+<footer>
+	<p>
+		Nationellt kvalitetsregister för Öron-, Näs- och Halssjukvård, 413 45 Göteborg, 072-516 90 50, onh@registercentrum.se
+	</p>
+</footer>
+<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/ext-all.js"></script>
+<script type="text/javascript" src="https://stratum.registercentrum.se/ExtJS/packages/ext-theme-stratum/build/ext-theme-stratum-debug.js?v=3639"></script>
+<!-- <script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/ext-theme-crisp/build/ext-theme-crisp-debug.js"></script> -->
+<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/sencha-charts/build/sencha-charts.js"></script>
+<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/ext-locale/build/ext-locale-sv_SE.js"></script>
+<script type="text/javascript" src="http://cdn.sencha.com/ext/gpl/5.1.0/build/packages/ext-locale/build/ext-locale-sv_SE.js"></script>
+<script type="text/javascript" src="https://stratum.registercentrum.se/Scripts/Repository.js?v=3639"></script>
+<script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
