@@ -13,6 +13,7 @@ var TonsillWidget = {
 		TonsillWidget.loadUnitData();
 	},
 	loadUnitData: function(unit) {
+		TonsillWidget.toggleLoading(true);
 		TonsillWidget._loadData({
 			unit: unit || TonsillWidget._unitCombo.getValue(),
 			TT: Ext.getCmp('cb-tt').getValue(),
@@ -21,7 +22,14 @@ var TonsillWidget = {
 			if (success) {
 				TonsillWidget.config.mainStore.loadData(data);
 			}
+			TonsillWidget.toggleLoading(false);
 		});
+	},
+	toggleLoading: function(isLoading){
+		var chart = TonsillWidget._chart;
+		if(chart){
+			chart.setLoading(isLoading && 'Laddar');
+		}
 	},
 	_loadData: function(conf, cb, data) {
 		Ext.Ajax.request({
@@ -161,7 +169,7 @@ var TonsillWidget = {
 		mainStore = conf.mainStore = window.mainStore = Ext.create('Ext.data.Store', {
 			fields: ['year', 'cBleed', 'sBleed', 'cBleedR', 'sBleedR']
 		});
-		chart = Ext.create({
+		chart = TonsillWidget._chart = Ext.create({
 			xtype: 'cartesian',
 			// renderTo: 'widget',
 			width: 600,
