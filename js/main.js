@@ -210,9 +210,16 @@ var TonsillWidget = {
 					title: ['Riket'],
 					stacked: false,
 					useDarkerStrokeColor: false,
-					// showInLegend: true,
-					style: {
-						// fillOpacity: 0.7
+					label: {
+						display: 'outside',
+						field: ['sBleed', 'sBleedR'],
+						orientation: 'horizontal',
+						fontSize: 10,
+						color: '#333',
+						calloutColor: 'rgba(0,0,0,0)', // to make it disappear or
+						style:{
+						},
+						renderer: Ext.util.Format.numberRenderer('0.0%')
 					},
 					renderer: function(sprite, config, rendererData, index) {
 						var isLast = index === rendererData.store.count() - 1;
