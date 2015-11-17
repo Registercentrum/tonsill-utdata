@@ -40,11 +40,14 @@ ul.menu{
 }
 ul.menu > li{
     display: inline;
-    padding: 10px;
+    padding: 10px 17px;
     margin: 0;
 }
 ul.menu > li.active{
     background-color: #a4c5c9;
+}
+#tabs-mock{
+    margin-bottom: 20px;
 }
 #main-container{
     background: #fff;

@@ -307,7 +307,10 @@ var TonsillWidget = {
 			}]
 		});
 		combosCt.add([unitCombo, indicatorCombo]);
-		ct.add([combosCt, filterCt, chart])
+		ct.add([combosCt, Ext.create('Ext.container.Container', {
+			layout: 'fit',
+			html: '<img id="tabs-mock" src="images/tabsmockup.png">'
+		}), filterCt, chart])
 	},
 
 }
