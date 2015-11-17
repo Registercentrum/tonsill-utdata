@@ -25,9 +25,9 @@ var TonsillWidget = {
 			TonsillWidget.toggleLoading(false);
 		});
 	},
-	toggleLoading: function(isLoading){
+	toggleLoading: function(isLoading) {
 		var chart = TonsillWidget._chart;
-		if(chart){
+		if (chart) {
 			chart.setLoading(isLoading && 'Laddar');
 		}
 	},
@@ -50,6 +50,8 @@ var TonsillWidget = {
 					retData[i.key]['cTotal' + (unit == 0 ? 'R' : '')] = i.value[0].value;
 					retData[i.key]['cBleed' + (unit == 0 ? 'R' : '')] = (conf.TT ? i.value[1].value : 0) + (conf.TE ? i.value[2].value : 0);
 					retData[i.key]['sBleed' + (unit == 0 ? 'R' : '')] = !conf.TT && !conf.TE ? 0 : i.value[TonsillWidget.getTTorTEValue(conf)].value * 100;
+					retData[i.key]['method'] = !conf.TE && !conf.TT ? '' : conf.TE ? (conf.TT ? 'TE+TT' : 'TE') : 'TT';
+
 				});
 				if (unit !== 0) {
 					conf.unit = 0;
@@ -128,10 +130,10 @@ var TonsillWidget = {
 					unitId = Ext.isArray(records) ? records[0].get('UnitCode') : records.get('UnitCode');
 					if (unitId) {
 						TonsillWidget.loadUnitData(unitId);
-						try{
+						try {
 							chart.getSeries()[0].setTitle(['Riket', cb.getRawValue()]);
 							chart.refreshLegendStore();
-						} catch(e){
+						} catch (e) {
 
 						}
 					}
@@ -167,7 +169,7 @@ var TonsillWidget = {
 			value: 'bleed'
 		});
 		mainStore = conf.mainStore = window.mainStore = Ext.create('Ext.data.Store', {
-			fields: ['year', 'cBleed', 'sBleed', 'cBleedR', 'sBleedR']
+			fields: ['year', 'cBleed', 'sBleed', 'cBleedR', 'sBleedR', 'method']
 		});
 		chart = TonsillWidget._chart = Ext.create({
 			xtype: 'cartesian',
@@ -177,7 +179,12 @@ var TonsillWidget = {
 			store: mainStore,
 			stacked: false,
 			colors: ['#359aa3', '#f87c16'],
-			innerPadding: {top: 0, left: 16, right: 16, bottom: 0},
+			innerPadding: {
+				top: 0,
+				left: 16,
+				right: 16,
+				bottom: 0
+			},
 			axes: [{
 				type: 'numeric',
 				position: 'left',
@@ -228,9 +235,19 @@ var TonsillWidget = {
 						fontSize: 10,
 						color: '#333',
 						calloutColor: 'rgba(0,0,0,0)', // to make it disappear or
-						style:{
-						},
+						style: {},
 						renderer: Ext.util.Format.numberRenderer('0.0%')
+					},
+					tooltip:{
+						anchor: 'top',
+						renderer: function(storeItem, item){
+							var isRiket = (/^sBleedR$/).test(item.field);
+							this.setHtml(Ext.String.format(
+								'Andel: {0}<br>Totalt: {1} operationer<br>Operationsteknik: {2}<br>Täckningsgrad: {3}',
+								Ext.util.Format.number(storeItem.get(isRiket ? 'sBleedR' : 'sBleed'), '0.0%'),
+								storeItem.get(isRiket ? 'cTotalR' : 'cTotal'),
+								storeItem.get('method')));
+						}
 					},
 					renderer: function(sprite, config, rendererData, index) {
 						var isLast = index === rendererData.store.count() - 1;
