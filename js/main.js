@@ -156,26 +156,18 @@ var TonsillWidget = {
 			}
 		}
 		return retObject;
-		//Adjust width
-		// return {
-		// width: config.width / 1.25,
-		// x: config.x + (config.width - config.width / 1.25) / 2
-		// };
 	},
 	_initComponents: function() {
 		var chart, indicatorCombo, unitCombo, mainStore, ct, combosCt, legend;
 		var conf = TonsillWidget.config;
 		ct = Ext.create('Ext.container.Container', {
-			// xtype: 'container',
 			layout: 'fit',
-			// width: '640',
 			renderTo: 'widget'
 		});
 		combosCt = Ext.create('Ext.container.Container', {
 			layout: 'hbox',
 			defaults: {
 				margin: '0 10px 4px 0',
-				// componentCls: 'standard-combo'
 			},
 			margin: '0 0 39px 0'
 		});
@@ -185,9 +177,6 @@ var TonsillWidget = {
 
 		unitCombo = TonsillWidget._unitCombo = Ext.create({
 			xtype: 'combo',
-			// componentCls: 'ton-combo-standard',
-			// cls: 'ton-combo-cls',
-			// triggerWrapCls: 'ton-combo-trigger',
 			width: 270,
 			store: {
 				fields: ['UnitCode', 'UnitName'],
@@ -357,7 +346,6 @@ var TonsillWidget = {
 		});
 		filterCt = Ext.create('Ext.container.Container', {
 			layout: 'hbox',
-			// layout: {type: 'hbox', align: 'stretch', pack: 'end'},
 			margin: '0 0 19px 0',
 			id: 'filterCt',
 			items: [legend, {
@@ -367,8 +355,6 @@ var TonsillWidget = {
 					align: 'stretch',
 					pack: 'end'
 				},
-				// fieldLabel: 'Toppings',
-				// pack: 'end',
 				defaultType: 'checkboxfield',
 				defaults: {
 					margin: '0 0 0 4px'
