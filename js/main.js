@@ -20,7 +20,7 @@ var TonsillWidget = {
 			TE: Ext.getCmp('cb-te').getValue()
 		}, function(success, data) {
 			if (success) {
-				TonsillWidget.config.mainStore.loadData(data);
+				TonsillWidget._mainStore.loadData(data);
 			} else {
 				Ext.Msg.alert('Fel', 'Något blev fel när data skulle laddas från statistik-servern, var god försök igen');
 			}
@@ -80,6 +80,13 @@ var TonsillWidget = {
 	getTTorTEValue: function(conf) {
 		return conf.TT ? (conf.TE ? 3 : 4) : 5;
 	},
+	activateCI: function() {
+		var store = TonsillWidget._mainStore;
+		if (store) {
+			// Ugly hack for reloading the chart...
+			store.loadData(store.getRange());
+		}
+	},
 	getErrorPathAttributes: function(barSprite, barConfig, deviation, lineConf) {
 		var conf = Ext.isObject(lineConf) ? lineConf : {},
 			errorWidth = (conf.errorWidth || 20) / 2,
@@ -110,10 +117,12 @@ var TonsillWidget = {
 			last = storeItems.length - 1,
 			record = storeItems[index],
 			surface = sprite.getParent(),
+			field = sprite._field,
 			errorSprites = surface.myErrorSprites,
+			fieldErrorSprites = errorSprites && errorSprites[field],
 			scale = sprite.attr.scalingY,
-			exactIndex = index + sprite._field,
-			isRiket = (/^sBleedR$/).test(sprite._field),
+			exactIndex = index + field,
+			isRiket = (/^sBleedR$/).test(field),
 			deviation, errorSprite, i, isLast, retObject;
 
 		isLast = index === rendererData.store.count() - 1;
@@ -124,10 +133,12 @@ var TonsillWidget = {
 		if (!record || !Ext.getCmp('cb-ci').getValue()) {
 			// Hides all sprites if there are no records... And adds a text sprite
 			if (errorSprites && !surface.mySpritesHidden) {
-				Ext.each(errorSprites, function(es) {
-					es.hide();
+				Ext.Object.eachValue(errorSprites, function(es) {
+					Ext.each(es, function(ess) {
+						ess.hide();
+					});
 				});
-				// surface.mySpritesHidden = true;
+				surface.mySpritesHidden = true;
 			}
 			return retObject;
 		}
@@ -136,11 +147,14 @@ var TonsillWidget = {
 		deviation = record.get(isRiket ? 'ciBleedR' : 'ciBleed') * scale;
 
 		if (!errorSprites) {
-			errorSprites = surface.myErrorSprites = [];
+			errorSprites = surface.myErrorSprites = {};
 		}
-		errorSprite = errorSprites[exactIndex];
+		if (!fieldErrorSprites) {
+			fieldErrorSprites = errorSprites[field] = [];
+		}
+		errorSprite = fieldErrorSprites[index];
 		if (!errorSprite) {
-			errorSprite = errorSprites[exactIndex] = surface.add({
+			errorSprite = fieldErrorSprites[index] = surface.add({
 				type: 'path'
 			});
 		} else {
@@ -151,8 +165,8 @@ var TonsillWidget = {
 			stroke: '#58585a'
 		}));
 		if (index === last) {
-			for (i = last + 1; i < errorSprites.length; i++) {
-				errorSprites[i].hide();
+			for (i = last + 1; i < fieldErrorSprites.length; i++) {
+				fieldErrorSprites[i].hide();
 			}
 		}
 		return retObject;
@@ -235,7 +249,7 @@ var TonsillWidget = {
 			displayField: 'display',
 			value: 'bleed'
 		});
-		mainStore = conf.mainStore = window.mainStore = Ext.create('Ext.data.Store', {
+		mainStore = TonsillWidget._mainStore = Ext.create('Ext.data.Store', {
 			fields: ['year', 'cBleed', {
 				name: 'sBleed',
 				defaultValue: 0
@@ -381,6 +395,10 @@ var TonsillWidget = {
 					boxLabel: 'Konfidensintervall 95%',
 					name: 'ci',
 					inputValue: '3',
+					checked: false,
+					listeners: {
+						change: TonsillWidget.activateCI
+					},
 					id: 'cb-ci'
 				}]
 			}]
