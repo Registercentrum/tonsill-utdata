@@ -37,7 +37,8 @@ var TonsillWidget = {
 		Ext.Ajax.request({
 			type: 'ajax',
 			method: 'get',
-			url: 'https://stratum.registercentrum.se/api/statistics/ton/aggregates',
+			cors: true,
+			url: '//stratum.registercentrum.se/api/statistics/ton/aggregates',
 			params: {
 				apiKey: TonsillWidget.config.apiKey,
 				unit: conf.unit
@@ -193,7 +194,7 @@ var TonsillWidget = {
 				autoLoad: true,
 				proxy: {
 					type: 'ajax',
-					url: 'https://stratum.registercentrum.se/api/metadata/units/register/129/?apikey=' + TonsillWidget.config.apiKey,
+					url: '//stratum.registercentrum.se/api/metadata/units/register/129/?apikey=' + TonsillWidget.config.apiKey,
 					reader: {
 						type: 'json',
 						rootProperty: 'data'
