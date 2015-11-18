@@ -101,6 +101,9 @@ footer{
 .x-form-text-default {
     padding: 9px 20px;
 }
+.x-form-cb-label{
+    cursor: pointer;
+}
 .x-form-trigger-wrap{
     border-radius: 3px;
     border-color: rgba(0, 0, 0, 0.3);
